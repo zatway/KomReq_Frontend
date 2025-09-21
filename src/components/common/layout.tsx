@@ -1,14 +1,14 @@
-import { Outlet } from 'react-router-dom';
-import { Container, Box } from '@mui/material';
-import { Navbar } from './navbar';
+import React from 'react';
+import { Box } from '@mui/material';
+import Navbar from './navbar';
 
-export const Layout = () => {
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return (
-        <Box sx={{ minHeight: '100vh', bgcolor: 'grey.100' }}>
+        <Box>
             <Navbar />
-            <Container maxWidth="lg" sx={{ py: 4 }}>
-                <Outlet />
-            </Container>
+            <Box sx={{ p: 3 }}>{children}</Box>
         </Box>
     );
 };
+
+export default Layout;

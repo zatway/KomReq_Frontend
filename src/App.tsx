@@ -1,9 +1,9 @@
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './contexts/authContext';
-import { AppRoutes } from './routes';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import './styles/index.css';
+import './index.css';
+import AppRoutes from "./routes/appRoutes.tsx";
 
 const theme = createTheme({
   palette: {

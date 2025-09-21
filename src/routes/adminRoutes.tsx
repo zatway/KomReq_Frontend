@@ -1,4 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import AdminDashboard from "../pages/admin/adminDashboard.tsx";
+import UserManagement from "../pages/admin/userManagement.tsx";
 
 export const AdminRoutes = () => {
     return (

@@ -1,9 +1,11 @@
+import type {RequestPriorityDto} from "../types/RequestPriority.ts";
+
 export interface RequestDto {
     id: number;
     clientId: number;
     equipmentTypeId: number;
     quantity: number;
-    priority: RequestPriority;
+    priority: RequestPriorityDto;
     createdDate: string;
     targetCompletion?: string | null;
     managerId?: string | null;

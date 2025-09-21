@@ -1,47 +1,148 @@
+import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { LoginPage } from '../pages/LoginPage';
-import { RegisterPage } from '../pages/RegisterPage';
-import { ChangePasswordPage } from '../pages/ChangePasswordPage';
-import { Home } from '../pages/Home';
-import { RequestsPage } from '../pages/RequestsPage';
-import { RequestPage } from '../pages/RequestPage';
-import { AdminRoutes } from './AdminRoutes';
-import { Layout } from '../components/common/Layout';
+import LoginPage from '../pages/loginPage';
+import RegisterPage from '../pages/registerPage';
+import RequestList from '../components/requests/requestList';
+import RequestForm from '../components/requests/requestForm';
+import RequestPage from '../pages/requestPage';
+import ChangePasswordPage from '../pages/changePasswordPage';
+import Home from '../pages/home';
+import {AdminRoutes} from './adminRoutes';
+import Layout from '../components/common/layout';
+import AssignUser from '../components/requests/assignUser';
+import UploadFile from '../components/requests/uploadFile';
+import RequestHistory from '../components/requests/requestHistory';
+import {useAuth} from "../hooks/useAuth.tsx";
 
-export const AppRoutes = () => {
-    const { user } = useAuth();
+const AppRoutes: React.FC = () => {
+    const { isAuthenticated, hasRole } = useAuth();
 
     return (
         <Routes>
-            {/* Public Routes */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            <Route path="/change-password" element={<ChangePasswordPage />} />
-
-            {/* Protected Routes */}
             <Route
+                path="/"
                 element={
-                    user ? <Layout /> : <Navigate to="/login" replace />
+                    isAuthenticated ? (
+                        <Layout>
+                            <Home />
+                        </Layout>
+                    ) : (
+                        <Navigate to="/login" />
+                    )
                 }
-            >
-                <Route path="/" element={<Home />} />
-                <Route path="/requests" element={<RequestsPage />} />
-                <Route path="/requests/:id" element={<RequestPage />} />
-                <Route
-                    path="/admin/*"
-                    element={
-                        user?.roles?.includes('Admin') ? (
+            />
+            <Route
+                path="/requests"
+                element={
+                    isAuthenticated ? (
+                        <Layout>
+                            <RequestList />
+                        </Layout>
+                    ) : (
+                        <Navigate to="/login" />
+                    )
+                }
+            />
+            <Route
+                path="/requests/new"
+                element={
+                    isAuthenticated && hasRole('Manager') ? (
+                        <Layout>
+                            <RequestForm />
+                        </Layout>
+                    ) : (
+                        <Navigate to="/login" />
+                    )
+                }
+            />
+            <Route
+                path="/requests/:id"
+                element={
+                    isAuthenticated ? (
+                        <Layout>
+                            <RequestPage />
+                        </Layout>
+                    ) : (
+                        <Navigate to="/login" />
+                    )
+                }
+            />
+            <Route
+                path="/requests/:id/edit"
+                element={
+                    isAuthenticated && hasRole('Manager') ? (
+                        <Layout>
+                            <RequestForm />
+                        </Layout>
+                    ) : (
+                        <Navigate to="/login" />
+                    )
+                }
+            />
+            <Route
+                path="/requests/:id/history"
+                element={
+                    isAuthenticated ? (
+                        <Layout>
+                            <RequestHistory />
+                        </Layout>
+                    ) : (
+                        <Navigate to="/login" />
+                    )
+                }
+            />
+            <Route
+                path="/requests/:id/assign"
+                element={
+                    isAuthenticated && hasRole('Manager') ? (
+                        <Layout>
+                            <AssignUser />
+                        </Layout>
+                    ) : (
+                        <Navigate to="/login" />
+                    )
+                }
+            />
+            <Route
+                path="/requests/:id/upload"
+                element={
+                    isAuthenticated && (hasRole('Manager') || hasRole('Technician')) ? (
+                        <Layout>
+                            <UploadFile />
+                        </Layout>
+                    ) : (
+                        <Navigate to="/login" />
+                    )
+                }
+            />
+            <Route
+                path="/change-password"
+                element={
+                    isAuthenticated ? (
+                        <Layout>
+                            <ChangePasswordPage />
+                        </Layout>
+                    ) : (
+                        <Navigate to="/login" />
+                    )
+                }
+            />
+            <Route
+                path="/admin/*"
+                element={
+                    isAuthenticated && hasRole('Admin') ? (
+                        <Layout>
                             <AdminRoutes />
-                        ) : (
-                            <Navigate to="/" replace />
-                        )
-                    }
-                />
-            </Route>
-
-            {/* Fallback Route */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+                        </Layout>
+                    ) : (
+                        <Navigate to="/login" />
+                    )
+                }
+            />
         </Routes>
     );
 };
+
+export default AppRoutes;

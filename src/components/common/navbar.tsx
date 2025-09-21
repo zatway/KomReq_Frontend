@@ -1,72 +1,40 @@
-import { NavLink } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import React from 'react';
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
-export const Navbar = () => {
-    const { user, logout } = useAuth();
+import {useAuth} from "../../hooks/useAuth.tsx";
+
+const Navbar: React.FC = () => {
+    const { user, hasRole, logout } = useAuth();
+    const navigate = useNavigate();
 
     return (
         <AppBar position="static">
             <Toolbar>
                 <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                    Request Management
+                    KomReq
                 </Typography>
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                    <Button
-                        color="inherit"
-                        component={NavLink}
-                        to="/"
-                        sx={({ isActive }) => ({
-                            textDecoration: isActive ? 'underline' : 'none',
-                        })}
-                    >
-                        Home
-                    </Button>
-                    <Button
-                        color="inherit"
-                        component={NavLink}
-                        to="/requests"
-                        sx={({ isActive }) => ({
-                            textDecoration: isActive ? 'underline' : 'none',
-                        })}
-                    >
-                        Requests
-                    </Button>
-                    {user?.roles?.includes('Admin') && (
-                        <Button
-                            color="inherit"
-                            component={NavLink}
-                            to="/admin"
-                            sx={({ isActive }) => ({
-                                textDecoration: isActive ? 'underline' : 'none',
-                            })}
-                        >
-                            Admin
+                {user && (
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                        <Button color="inherit" onClick={() => navigate('/requests')}>
+                            Заявки
                         </Button>
-                    )}
-                    {user ? (
-                        <>
-                            <Typography variant="body1" sx={{ alignSelf: 'center' }}>
-                                {user.userName}
-                            </Typography>
-                            <Button color="inherit" onClick={logout}>
-                                Logout
+                        {hasRole('Admin') && (
+                            <Button color="inherit" onClick={() => navigate('/admin/users')}>
+                                Пользователи
                             </Button>
-                        </>
-                    ) : (
-                        <Button
-                            color="inherit"
-                            component={NavLink}
-                            to="/login"
-                            sx={({ isActive }) => ({
-                                textDecoration: isActive ? 'underline' : 'none',
-                            })}
-                        >
-                            Login
+                        )}
+                        <Button color="inherit" onClick={() => navigate('/change-password')}>
+                            Сменить пароль
                         </Button>
-                    )}
-                </Box>
+                        <Button color="inherit" onClick={logout}>
+                            Выйти
+                        </Button>
+                    </Box>
+                )}
             </Toolbar>
         </AppBar>
     );
 };
+
+export default Navbar;

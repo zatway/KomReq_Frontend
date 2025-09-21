@@ -4,5 +4,7 @@ export interface UserDto {
     email?: string;
     fullName?: string;
     isActive?: boolean;
-    roles?: string[];
+    roles?: {
+        values: string[]
+    }
 }

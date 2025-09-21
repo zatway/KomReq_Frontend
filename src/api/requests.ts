@@ -1,55 +1,92 @@
-import { requestApi } from "./http";
+import axios from 'axios';
+import type {CreateRequestDto} from './types/interfaces/createRequestDto';
 import type {UpdateRequestDto} from "./types/interfaces/updateRequestDto.ts";
-import type { ChangeStatusDto } from './types/interfaces/changeStatusDto.ts';
+import type {ChangeStatusDto} from "./types/interfaces/changeStatusDto.ts";
 import type {AssignUserDto} from "./types/interfaces/assignUserDto.ts";
-import type {UploadFileDto} from "./types/interfaces/uploadFileDto.ts";
+import type {RequestFilterDto} from "./types/interfaces/requestFilterDto.ts";
 import type {RequestDto} from "./types/interfaces/requestDto.ts";
 import type {RequestHistoryDto} from "./types/interfaces/requestHistoryDto.ts";
-import type {RequestFilterDto} from "./types/interfaces/requestFilterDto.ts";
 
-export const updateRequest = async (id: number, model: UpdateRequestDto) => {
-    const res = await requestApi.put(`/${id}`, model);
-    return res.data as { message: string };
+const API_URL = 'http://localhost:5012/api/request'; // Замените на реальный URL вашего API
+
+// Хелпер для получения токена из localStorage
+const getAuthHeader = () => {
+    const token = localStorage.getItem('token');
+    return token ? {Authorization: `Bearer ${token}`} : {};
 };
 
-export const changeStatus = async (id: number, model: ChangeStatusDto) => {
-    const res = await requestApi.put(`/${id}/status`, model);
-    return res.data as { message: string };
-};
-
-export const assignUser = async (id: number, model: AssignUserDto) => {
-    const res = await requestApi.post(`/${id}/assign`, model);
-    return res.data as { message: string };
-};
-
-export const uploadFile = async (id: number, model: UploadFileDto) => {
-    const fd = new FormData();
-    fd.append("file", model.file);
-    if (model.description) fd.append("description", model.description);
-    fd.append("isConfidential", String(!!model.isConfidential));
-
-    const res = await requestApi.post(`/${id}/files`, fd, {
-        headers: { "Content-Type": "multipart/form-data" },
+// Создание заявки (Manager)
+export const createRequest = async (data: CreateRequestDto): Promise<{ message: string; requestId: number }> => {
+    const response = await axios.post(`${API_URL}/create`, data, {
+        headers: getAuthHeader(),
     });
-    return res.data as { message: string; fileId?: number };
+    return response.data;
 };
 
-export const getRequest = async (id: number) => {
-    const res = await requestApi.get(`/${id}`);
-    return res.data as RequestDto;
+// Обновление заявки (Manager)
+export const updateRequest = async (id: number, data: UpdateRequestDto): Promise<{ message: string }> => {
+    const response = await axios.put(`${API_URL}/${id}`, data, {
+        headers: getAuthHeader(),
+    });
+    return response.data;
 };
 
-export const getRequests = async (filter?: RequestFilterDto) => {
-    const res = await requestApi.get("", { params: filter });
-    return res.data as RequestDto[];
+// Изменение статуса заявки (Manager, Technician)
+export const changeStatus = async (id: number, data: ChangeStatusDto): Promise<{ message: string }> => {
+    const response = await axios.put(`${API_URL}/${id}/status`, data, {
+        headers: getAuthHeader(),
+    });
+    return response.data;
 };
 
-export const getRequestHistory = async (id: number) => {
-    const res = await requestApi.get(`/${id}/history`);
-    return res.data as RequestHistoryDto[];
+// Назначение сотрудника на заявку (Manager)
+export const assignUser = async (id: number, data: AssignUserDto): Promise<{ message: string }> => {
+    const response = await axios.post(`${API_URL}/${id}/assign`, data, {
+        headers: getAuthHeader(),
+    });
+    return response.data;
 };
 
-export const deleteRequest = async (id: number) => {
-    const res = await requestApi.delete(`/${id}`);
-    return res.data as { message: string };
+// Загрузка файла к заявке (Manager, Technician)
+export const uploadFile = async (id: number, data: FormData): Promise<{ message: string; fileId: number }> => {
+    const response = await axios.post(`${API_URL}/${id}/files`, data, {
+        headers: {
+            ...getAuthHeader(),
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    return response.data;
+};
+
+// Получение информации о заявке (All roles)
+export const getRequest = async (id: number): Promise<RequestDto> => {
+    const response = await axios.get(`${API_URL}/${id}`, {
+        headers: getAuthHeader(),
+    });
+    return response.data;
+};
+
+// Получение списка заявок с фильтрацией (All roles)
+export const getRequests = async (filter: RequestFilterDto): Promise<RequestDto[]> => {
+    const response = await axios.get(`${API_URL}`, {
+        headers: getAuthHeader(),
+        params: filter,
+    });
+    return response.data;
+};
+
+// Получение истории заявки (All roles)
+export const getRequestHistory = async (id: number): Promise<RequestHistoryDto[]> => {
+    const response = await axios.get(`${API_URL}/${id}/history`, {
+        headers: getAuthHeader(),
+    });
+    return response.data;
+};
+
+// Удаление заявки (Admin)
+export const deleteRequest = async (id: number): Promise<{ message: string }> => {
+    const response = await axios.delete(`${API_URL}/${id}`, {
+        headers: getAuthHeader(),
+    });
+    return response.data;
 };
