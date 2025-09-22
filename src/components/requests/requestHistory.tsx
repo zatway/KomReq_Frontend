@@ -37,10 +37,10 @@ const RequestHistory: React.FC = () => {
                     {history?.map((entry) => (
                         <TableRow key={entry.id}>
                             <TableCell>{new Date(entry.changeDate).toLocaleString()}</TableCell>
-                            <TableCell>{entry.oldStatusId || '-'}</TableCell>
-                            <TableCell>{entry.newStatusId}</TableCell>
+                            <TableCell>{entry.oldStatus?.statusName || '-'}</TableCell>
+                            <TableCell>{entry.newStatus?.statusName || '-'}</TableCell>
                             <TableCell>{entry.comment || '-'}</TableCell>
-                            <TableCell>{entry.changedByUserId}</TableCell>
+                            <TableCell>{entry.changedBy?.fullName || entry.changedBy?.id || '-'}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

@@ -42,7 +42,7 @@ const UserList: React.FC = () => {
         if(users !== null && users !== undefined) {
             console.log(users);
             users?.forEach(u => {
-                const roles = u.roles?.values ?? u.roles ?? [];
+                const roles = u.roles ?? []; // Упрощено: roles уже должен быть string[]
                 initial[u.id] = Array.isArray(roles) ? roles : [];
             });
             setEditedRoles(initial);

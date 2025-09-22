@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import {useSnackbar} from '../contexts/snackbarContext';
+import { useCallback } from 'react'; // Импортируем useCallback
 
 interface ApiResponse<T> {
     data: T | null;
@@ -16,12 +17,12 @@ export const useApi = <T>() => {
     });
     const { showMessage } = useSnackbar();
 
-    const execute = async (apiCall: () => Promise<T>, successMessage?: string) => {
+    const execute = useCallback(async (apiCall: () => Promise<T>, successMessage?: string, successSeverity?: 'success' | 'error' | 'info' | 'warning') => {
         setResponse({ data: null, loading: true, error: null });
         try {
             const data = await apiCall();
             setResponse({ data, loading: false, error: null });
-            if (successMessage) showMessage(successMessage, 'success');
+            if (successMessage) showMessage(successMessage, successSeverity || 'success');
             return data;
         } catch (error) {
             const errorMessage = axios.isAxiosError(error)
@@ -31,7 +32,7 @@ export const useApi = <T>() => {
             showMessage(errorMessage, 'error');
             throw error;
         }
-    };
+    }, [showMessage]); // Зависимость от showMessage
 
     return { ...response, execute };
 };

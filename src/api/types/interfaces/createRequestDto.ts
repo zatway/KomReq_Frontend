@@ -1,7 +1,8 @@
 import type {RequestPriorityDto} from '../types/RequestPriority.ts';
 
 export interface CreateRequestDto {
-    clientId: number;
+    // clientId: number;
+    clientUserId?: string;
     equipmentTypeId: number;
     quantity: number;
     priority: RequestPriorityDto;

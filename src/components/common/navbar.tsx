@@ -26,12 +26,35 @@ const Navbar: React.FC = () => {
                             </Button>
                         )}
                         {hasRole(ROLES.Admin) && (
+                            <Button color="inherit" onClick={() => navigate('/admin/equipment-types')}>
+                                Типы оборудования
+                            </Button>
+                        )}
+                        {hasRole(ROLES.Admin) && (
+                            <Button color="inherit" onClick={() => navigate('/admin/audit-logs')}>
+                                Журнал аудита
+                            </Button>
+                        )}
+                        {(hasRole(ROLES.Admin) || hasRole(ROLES.Manager)) && (
+                            <Button color="inherit" onClick={() => navigate('/admin/statistics')}>
+                                Статистика
+                            </Button>
+                        )}
+                        {(hasRole(ROLES.Admin) || hasRole(ROLES.Manager)) && (
+                            <Button color="inherit" onClick={() => navigate('/admin/reports')}>
+                                Отчеты
+                            </Button>
+                        )}
+                        {hasRole(ROLES.Admin) && (
                             <Button color="inherit" onClick={() => navigate('/admin')}>
                                 Админка
                             </Button>
                         )}
                         <Button color="inherit" onClick={() => navigate('/change-password')}>
                             Сменить пароль
+                        </Button>
+                        <Button color="inherit" onClick={() => navigate('/notifications')}>
+                            Уведомления
                         </Button>
                         <Button color="inherit" onClick={logout}>
                             Выйти

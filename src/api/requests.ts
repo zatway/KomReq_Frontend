@@ -7,8 +7,18 @@ import type {RequestDto} from "./types/interfaces/requestDto.ts";
 import type {RequestHistoryDto} from "./types/interfaces/requestHistoryDto.ts";
 import { createApi } from './http';
 
-const API_URL = (import.meta as any).env?.VITE_API_REQUEST_URL || 'http://localhost:5012/api/request';
+const API_URL = import.meta.env?.VITE_API_REQUEST_URL || 'http://localhost:5012/api/request';
 const api = createApi(API_URL);
+
+export interface RequestStatusDto {
+    id: number;
+    name: string;
+    isFinal: boolean;
+}
+
+export interface AddCommentDto {
+    comment: string;
+}
 
 // Создание заявки (Manager)
 export const createRequest = async (data: CreateRequestDto): Promise<{ message: string; requestId: number }> => {
@@ -63,5 +73,15 @@ export const getRequestHistory = async (id: number): Promise<RequestHistoryDto[]
 // Удаление заявки (Admin)
 export const deleteRequest = async (id: number): Promise<{ message: string }> => {
     const response = await api.delete(`/${id}`);
+    return response.data;
+};
+
+export const getRequestStatuses = async (): Promise<RequestStatusDto[]> => {
+    const response = await api.get<RequestStatusDto[]>(`/api/request-status`);
+    return response.data;
+};
+
+export const addComment = async (id: number, data: AddCommentDto): Promise<{ message: string }> => {
+    const response = await api.post(`/${id}/add-comment`, data);
     return response.data;
 };

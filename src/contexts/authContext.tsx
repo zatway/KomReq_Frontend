@@ -21,9 +21,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({children}) => {
             const raw = JSON.parse(storedUser);
             const normalized = {
                 ...raw,
-                roles: {
-                    values: raw?.roles?.values ?? raw?.roles?.$values ?? raw?.roles ?? (raw as any)?.Roles ?? []
-                }
+                roles: raw?.roles ?? (raw as any)?.Roles ?? []
             } as UserDto;
             setUser(normalized);
         }
@@ -37,9 +35,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({children}) => {
                 const raw = JSON.parse(nextUser);
                 const normalized = {
                     ...raw,
-                    roles: {
-                        values: raw?.roles?.values ?? raw?.roles?.$values ?? raw?.roles ?? (raw as any)?.Roles ?? []
-                    }
+                    roles: raw?.roles ?? (raw as any)?.Roles ?? []
                 } as UserDto;
                 setUser(normalized);
             }

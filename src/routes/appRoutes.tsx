@@ -12,6 +12,7 @@ import Layout from '../components/common/layout';
 import AssignUser from '../components/requests/assignUser';
 import UploadFile from '../components/requests/uploadFile';
 import RequestHistory from '../components/requests/requestHistory';
+import NotificationsViewer from '../pages/NotificationsViewer';
 import {useAuth} from "../hooks/useAuth.tsx";
 
 const AppRoutes: React.FC = () => {
@@ -123,6 +124,18 @@ const AppRoutes: React.FC = () => {
                     isAuthenticated ? (
                         <Layout>
                             <ChangePasswordPage />
+                        </Layout>
+                    ) : (
+                        <Navigate to="/login" />
+                    )
+                }
+            />
+            <Route
+                path="/notifications"
+                element={
+                    isAuthenticated ? (
+                        <Layout>
+                            <NotificationsViewer />
                         </Layout>
                     ) : (
                         <Navigate to="/login" />

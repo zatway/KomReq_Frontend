@@ -45,13 +45,13 @@ const RequestList: React.FC = () => {
             </Typography>
             {error && <Alert severity="error">{error}</Alert>}
             <Box sx={{mb: 2, display: 'flex', gap: 2}}>
-                <TextField
-                    label="ID клиента"
-                    name="clientId"
-                    type="number"
-                    value={filter.clientId || ''}
-                    onChange={handleFilterChange}
-                />
+                {/* <TextField */}
+                {/*    label="ID клиента" */}
+                {/*    name="clientId" */}
+                {/*    type="number" */}
+                {/*    value={filter.clientId || ''} */}
+                {/*    onChange={handleFilterChange} */}
+                {/* /> */}
                 <FormControl sx={{minWidth: 120}}>
                     <InputLabel>Приоритет</InputLabel>
                     <Select name="priority" value={filter.priority || ''} onChange={(ev) => setFilter({...filter, priority: ev.target.value as string})}>
@@ -83,7 +83,7 @@ const RequestList: React.FC = () => {
                 <TableHead>
                     <TableRow>
                         <TableCell>ID</TableCell>
-                        <TableCell>Клиент</TableCell>
+                        <TableCell>Создатель</TableCell> {/* Изменено с Клиент на Создатель */}
                         <TableCell>Оборудование</TableCell>
                         <TableCell>Статус</TableCell>
                         <TableCell>Приоритет</TableCell>
@@ -94,8 +94,8 @@ const RequestList: React.FC = () => {
                     {Array.isArray(requests) && requests.map((request) => (
                         <TableRow key={request.id}>
                             <TableCell>{request.id}</TableCell>
-                            <TableCell>{request.client?.fullName}</TableCell>
-                            <TableCell>{request.equipmentType?.name}</TableCell>
+                            <TableCell>{request.creator?.fullName || request.creator?.userName}</TableCell> {/* Изменено с request.client на request.creator */}
+                            <TableCell>{request.equipmentType?.equipmentName}</TableCell> {/* Changed to equipmentName */}
                             <TableCell>{request.currentStatus?.name}</TableCell>
                             <TableCell>{request.priority}</TableCell>
                             <TableCell>

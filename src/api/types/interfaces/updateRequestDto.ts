@@ -3,4 +3,5 @@ export interface UpdateRequestDto {
     priority: RequestPriority;
     targetCompletion?: string | null;
     comments?: string | null;
+    equipmentTypeId?: number;
 }

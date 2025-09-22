@@ -6,7 +6,7 @@ import type { ChangePasswordModel } from './types/interfaces/changePasswordModel
 import type { ChangeRoleModel } from './types/interfaces/changeRoleModel';
 import { createApi } from './http';
 
-const API_URL = (import.meta as any).env?.VITE_API_AUTH_URL || 'http://localhost:5012/api/auth';
+const API_URL = import.meta.env?.VITE_API_AUTH_URL || 'http://localhost:5012/api/auth';
 
 const api = createApi(API_URL);
 
@@ -21,6 +21,7 @@ export const login = async (data: LoginModel): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>(`/login`, data);
     if (response.data.token) {
         localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
     }
     return response.data;
 };
@@ -52,5 +53,11 @@ export const changePassword = async (data: ChangePasswordModel): Promise<{ messa
 // Смена роли (Admin)
 export const changeRole = async (data: ChangeRoleModel): Promise<{ message: string }> => {
     const response = await api.post<{ message: string }>(`/change-role`, data);
+    return response.data;
+};
+
+// Поиск пользователей по роли (Admin, Manager)
+export const searchUsers = async (query?: string, role?: string): Promise<UserDto[]> => {
+    const response = await api.get<UserDto[]>(`/search-users`, { params: { query, role } });
     return response.data;
 };
