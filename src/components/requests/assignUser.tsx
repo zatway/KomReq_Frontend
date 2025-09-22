@@ -20,7 +20,7 @@ const AssignUser: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await execute(() => assignUser(Number(id), form));
+            await execute(() => assignUser(Number(id), form), 'Сотрудник назначен');
             navigate(`/requests/${id}`);
         } catch (err) {
             console.error(err)

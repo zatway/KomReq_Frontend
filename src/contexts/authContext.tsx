@@ -20,9 +20,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({children}) => {
         if (token && storedUser) {
             setUser(JSON.parse(storedUser));
         }
+        const handleStorage = (event: StorageEvent) => {
+            if (event.key === 'token' || event.key === 'user') {
+                const nextUser = localStorage.getItem('user');
+                setUser(nextUser ? JSON.parse(nextUser) : null);
+            }
+        };
+        window.addEventListener('storage', handleStorage);
+        return () => window.removeEventListener('storage', handleStorage);
     }, []);
 
-    const isAuthenticated = !!user && !!localStorage.getItem('token');
+    const isAuthenticated = !!localStorage.getItem('token');
 
     const hasRole = (role: string) => {
         return user?.roles?.values?.includes(role) || false;

@@ -1,4 +1,4 @@
 export interface ChangeRoleModel {
     userId: string;
-    newRole: string;
+    newRoles: string[];
 }

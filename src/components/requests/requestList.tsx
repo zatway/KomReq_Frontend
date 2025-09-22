@@ -24,7 +24,8 @@ import {useAuth} from "../../hooks/useAuth.tsx";
 
 const RequestList: React.FC = () => {
     const [filter, setFilter] = useState<RequestFilterDto>({});
-    const {data: requests, execute, loading, error} = useApi<RequestDto[]>();
+    const {data: requests, execute, error} = useApi<RequestDto[]>();
+    const {execute: execDelete} = useApi<{ message: string }>();
     const {hasRole} = useAuth();
     const navigate = useNavigate();
 
@@ -32,7 +33,7 @@ const RequestList: React.FC = () => {
         execute(() => getRequests(filter));
     }, [filter, execute]);
 
-    const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+    const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFilter({...filter, [e.target.name as string]: e.target.value});
     };
 
@@ -52,7 +53,7 @@ const RequestList: React.FC = () => {
                 />
                 <FormControl sx={{minWidth: 120}}>
                     <InputLabel>Приоритет</InputLabel>
-                    <Select name="priority" value={filter.priority || ''} onChange={handleFilterChange}>
+                    <Select name="priority" value={filter.priority || ''} onChange={(ev) => setFilter({...filter, priority: ev.target.value as string})}>
                         <MenuItem value="">Все</MenuItem>
                         <MenuItem value="Low">Низкий</MenuItem>
                         <MenuItem value="Medium">Средний</MenuItem>
@@ -89,18 +90,21 @@ const RequestList: React.FC = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {requests?.map((request) => (
+                    {Array.isArray(requests) && requests.map((request) => (
                         <TableRow key={request.id}>
                             <TableCell>{request.id}</TableCell>
-                            <TableCell>{request.client.fullName}</TableCell>
-                            <TableCell>{request.equipmentType.name}</TableCell>
-                            <TableCell>{request.currentStatus.name}</TableCell>
+                            <TableCell>{request.client?.fullName}</TableCell>
+                            <TableCell>{request.equipmentType?.name}</TableCell>
+                            <TableCell>{request.currentStatus?.name}</TableCell>
                             <TableCell>{request.priority}</TableCell>
                             <TableCell>
                                 <Button onClick={() => navigate(`/requests/${request.id}`)}>Подробно</Button>
                                 {hasRole('Admin') && (
                                     <Button color="error"
-                                            onClick={() => execute(() => deleteRequest(request.id)).then(() => execute(() => getRequests(filter)))}>
+                                            onClick={async () => {
+                                                await execDelete(() => deleteRequest(request.id), 'Заявка удалена');
+                                                await execute(() => getRequests(filter));
+                                            }}>
                                         Удалить
                                     </Button>
                                 )}

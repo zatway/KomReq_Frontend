@@ -1,7 +1,7 @@
 export interface RequestFilterDto {
     statusId?: number;
     clientId?: number;
-    priority?: RequestPriority;
+    priority?: string;
     startDate?: string;
     endDate?: string;
 }

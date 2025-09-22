@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Box, Alert } from '@mui/material';
-import {createRequest, getRequest} from '../../api';
+import {createRequest, getRequest, updateRequest} from '../../api';
 import { useApi } from '../../hooks/useApi';
 import type {CreateRequestDto} from "../../api/types/interfaces/createRequestDto.ts";
 import {useAuth} from "../../hooks/useAuth.tsx";
@@ -17,22 +17,26 @@ const RequestForm: React.FC = () => {
         priority: 'Medium',
         comments: '',
     });
-    const { execute, error, loading } = useApi();
+    const { execute, error, loading } = useApi<any>();
     const { hasRole } = useAuth();
     const navigate = useNavigate();
 
-    // useEffect(() => {
-    //     if (isEdit) {
-    //         execute(() => getRequest(Number(id))).then((data: RequestDto) => {
-    //             setForm({
-    //                 quantity: data.quantity,
-    //                 priority: data.priority,
-    //                 targetCompletion: data.targetCompletion,
-    //                 comments: data.comments,
-    //             });
-    //         });
-    //     }
-    // }, [id, execute]);
+    useEffect(() => {
+        if (isEdit) {
+            (async () => {
+                const data = await execute(() => getRequest(Number(id)));
+                const req = data as unknown as RequestDto;
+                setForm({
+                    clientId: req.clientId ?? 0,
+                    equipmentTypeId: req.equipmentTypeId ?? 0,
+                    quantity: req.quantity ?? 1,
+                    priority: req.priority as any,
+                    comments: req.comments ?? '',
+                    targetCompletion: req.targetCompletion ?? undefined,
+                });
+            })();
+        }
+    }, [id]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
         setForm({ ...form, [e.target.name as string]: e.target.value });
@@ -42,9 +46,14 @@ const RequestForm: React.FC = () => {
         e.preventDefault();
         try {
             if (isEdit) {
-                // await execute(() => updateRequest(Number(id), form as UpdateRequestDto));
+                await execute(() => updateRequest(Number(id), {
+                    quantity: form.quantity,
+                    priority: form.priority as any,
+                    comments: form.comments,
+                    targetCompletion: form.targetCompletion,
+                }), 'Заявка обновлена');
             } else {
-                await execute(() => createRequest(form as CreateRequestDto));
+                await execute(() => createRequest(form as CreateRequestDto), 'Заявка создана');
             }
             navigate('/requests');
         } catch (err) {
@@ -72,7 +81,7 @@ const RequestForm: React.FC = () => {
                             label="ID клиента"
                             name="clientId"
                             type="number"
-                            value={form.targetCompletion}
+                            value={form.clientId}
                             onChange={handleChange}
                         />
                         <TextField
@@ -82,7 +91,7 @@ const RequestForm: React.FC = () => {
                             label="ID типа оборудования"
                             name="equipmentTypeId"
                             type="number"
-                            value={form.comments}
+                            value={form.equipmentTypeId}
                             onChange={handleChange}
                         />
                     </>
@@ -100,7 +109,7 @@ const RequestForm: React.FC = () => {
                 <FormControl fullWidth margin="normal">
                     <InputLabel>Приоритет</InputLabel>
                     <Select name="priority" value={form.priority} onChange={(value) => {
-                        setForm({...form, priority: value.target.value})
+                        setForm({...form, priority: value.target.value as any})
                     }}>
                         <MenuItem value="Low">Низкий</MenuItem>
                         <MenuItem value="Medium">Средний</MenuItem>

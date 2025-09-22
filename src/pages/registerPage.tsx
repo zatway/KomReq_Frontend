@@ -16,18 +16,23 @@ import {register} from '../api';
 import {useApi} from '../hooks/useApi';
 
 const RegisterPage: React.FC = () => {
-    const [form, setForm] = useState({userName: '', fullName: '', email: '', password: '', role: 'Client'});
+    const [form, setForm] = useState({userName: '', fullName: '', email: '', password: '', roles: ['Client'] as string[]});
     const {execute, error, loading} = useApi();
     const navigate = useNavigate();
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({...form, [e.target.name as string]: e.target.value});
+    };
+
+    const handleRolesChange = (e: any) => {
+        const value = e.target.value as string[];
+        setForm({...form, roles: value});
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await execute(() => register(form));
+            await execute(() => register(form), 'Пользователь создан');
             navigate('/login');
         } catch (err) {
             console.error(err)
@@ -81,10 +86,8 @@ const RegisterPage: React.FC = () => {
                         onChange={handleChange}
                     />
                     <FormControl fullWidth margin="normal">
-                        <InputLabel>Роль</InputLabel>
-                        <Select name="role" value={form.role} onChange={(value) => {
-                            setForm({...form, role: value.target.value})
-                        }}>
+                        <InputLabel>Роли</InputLabel>
+                        <Select multiple value={form.roles} onChange={handleRolesChange} renderValue={(selected) => (selected as string[]).join(', ')}>
                             <MenuItem value="Client">Клиент</MenuItem>
                             <MenuItem value="Manager">Менеджер</MenuItem>
                             <MenuItem value="Technician">Техник</MenuItem>
@@ -99,6 +102,13 @@ const RegisterPage: React.FC = () => {
                         disabled={loading}
                     >
                         {loading ? 'Загрузка...' : 'Зарегистрироваться'}
+                    </Button>
+                    <Button
+                        fullWidth
+                        variant="text"
+                        onClick={() => navigate('/login')}
+                    >
+                        Уже есть аккаунт? Войти
                     </Button>
                 </Box>
             </Box>

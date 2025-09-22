@@ -1,15 +1,17 @@
 import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Typography, Box, Paper, Table, TableBody, TableCell, TableRow, Button } from '@mui/material';
 import { getRequest } from '../../api';
 import { useApi } from '../../hooks/useApi';
 import type { RequestDto } from '../../api/types/interfaces/requestDto';
 import {useAuth} from "../../hooks/useAuth.tsx";
+import {ROLES} from '../../constants/roles';
 
 const RequestDetails: React.FC = ({}) => {
     const { id } = useParams<{ id: string }>();
     const { data: request, execute, loading, error } = useApi<RequestDto>();
     const { hasRole } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (id) {
@@ -31,12 +33,12 @@ const RequestDetails: React.FC = ({}) => {
                     <TableBody>
                         <TableRow>
                             <TableCell>Клиент</TableCell>
-                            <TableCell>{request.clientId} ({request.clientId})</TableCell>
+                            <TableCell>{request.client?.fullName ?? request.clientId}</TableCell>
                         </TableRow>
-                        {/*<TableRow>*/}
-                        {/*    <TableCell>Оборудование</TableCell>*/}
-                        {/*    <TableCell>{request..name}</TableCell>*/}
-                        {/*</TableRow>*/}
+                        <TableRow>
+                            <TableCell>Оборудование</TableCell>
+                            <TableCell>{request.equipmentType?.name}</TableCell>
+                        </TableRow>
                         <TableRow>
                             <TableCell>Количество</TableCell>
                             <TableCell>{request.quantity}</TableCell>
@@ -45,13 +47,13 @@ const RequestDetails: React.FC = ({}) => {
                             <TableCell>Приоритет</TableCell>
                             <TableCell>{request.priority}</TableCell>
                         </TableRow>
-                        {/*<TableRow>*/}
-                        {/*    <TableCell>Статус</TableCell>*/}
-                        {/*    <TableCell>{request.currentStatus.name}</TableCell>*/}
-                        {/*</TableRow>*/}
+                        <TableRow>
+                            <TableCell>Статус</TableCell>
+                            <TableCell>{request.currentStatus?.name ?? request.currentStatusId}</TableCell>
+                        </TableRow>
                         <TableRow>
                             <TableCell>Дата создания</TableCell>
-                            <TableCell>{new Date(request.createdDate).toLocaleDateString()}</TableCell>
+                            <TableCell>{request.createdDate ? new Date(request.createdDate).toLocaleDateString() : '-'}</TableCell>
                         </TableRow>
                         <TableRow>
                             <TableCell>Целевая дата завершения</TableCell>
@@ -63,12 +65,12 @@ const RequestDetails: React.FC = ({}) => {
                         </TableRow>
                     </TableBody>
                 </Table>
-                {(hasRole('Manager') || hasRole('Technician')) && (
+                {(hasRole(ROLES.Manager) || hasRole(ROLES.Technician)) && (
                     <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
-                        {hasRole('Manager') && <Button variant="contained" href={`/requests/${id}/edit`}>Редактировать</Button>}
-                        <Button variant="contained" href={`/requests/${id}/history`}>История</Button>
-                        <Button variant="contained" href={`/requests/${id}/assign`}>Назначить</Button>
-                        <Button variant="contained" href={`/requests/${id}/upload`}>Загрузить файл</Button>
+                        {hasRole(ROLES.Manager) && <Button variant="contained" onClick={() => navigate(`/requests/${id}/edit`)}>Редактировать</Button>}
+                        <Button variant="contained" onClick={() => navigate(`/requests/${id}/history`)}>История</Button>
+                        {hasRole(ROLES.Manager) && <Button variant="contained" onClick={() => navigate(`/requests/${id}/assign`)}>Назначить</Button>}
+                        <Button variant="contained" onClick={() => navigate(`/requests/${id}/upload`)}>Загрузить файл</Button>
                     </Box>
                 )}
             </Paper>

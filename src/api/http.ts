@@ -1,25 +1,26 @@
 import axios from "axios";
 
-let authToken: string | null = null;
-
-export const setAuthToken = (token?: string | null) => {
-    authToken = token ?? null;
-};
-
-export const createApi = (baseURL: string) => {
+export const createApi = (baseURL?: string) => {
     const api = axios.create({ baseURL });
 
     api.interceptors.request.use((config) => {
-        if (authToken) {
+        const token = localStorage.getItem('token');
+        if (token) {
             config.headers = config.headers ?? {};
-            config.headers.Authorization = `Bearer ${authToken}`;
+            config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     });
 
+    api.interceptors.response.use(
+        (response) => response,
+        (error) => {
+            if (error?.response?.status === 401) {
+                // Не очищаем токен автоматически, просто пробрасываем ошибку
+            }
+            return Promise.reject(error);
+        }
+    );
+
     return api;
 };
-
-// экземпляры для разных зон
-export const authApi = createApi(import.meta.env.VITE_API_AUTH_URL);
-export const requestApi = createApi(import.meta.env.VITE_API_REQUEST_URL);

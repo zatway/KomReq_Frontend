@@ -64,6 +64,13 @@ const LoginPage: React.FC = () => {
                     >
                         {loading ? 'Загрузка...' : 'Войти'}
                     </Button>
+                    <Button
+                        fullWidth
+                        variant="text"
+                        onClick={() => navigate('/register')}
+                    >
+                        Нет аккаунта? Зарегистрироваться
+                    </Button>
                 </Box>
             </Box>
         </Container>

@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
     Table,
     TableBody,
@@ -9,40 +9,63 @@ import {
     Box,
     Typography,
     Alert,
-    Backdrop
+    Backdrop,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
 } from '@mui/material';
 import {getUsers, deleteUser, changeRole} from '../../api';
 import {useApi} from '../../hooks/useApi';
 import type {UserDto} from '../../api/types/interfaces/userDto';
 import {useAuth} from "../../hooks/useAuth.tsx";
+import {ROLES} from '../../constants/roles';
+
+const allRoles = [ROLES.Client, ROLES.Manager, ROLES.Technician, ROLES.Admin];
 
 const UserList: React.FC = () => {
     const {data: users, execute, loading, error} = useApi<UserDto[]>();
     const {hasRole} = useAuth();
 
+    const [editedRoles, setEditedRoles] = useState<Record<string, string[]>>({});
+
     useEffect(() => {
-        if (hasRole('Admin')) {
+        if (hasRole(ROLES.Admin)) {
             execute(() => getUsers());
         }
     }, [execute, hasRole]);
+
+    useEffect(() => {
+        const initial: Record<string, string[]> = {};
+        (users || []).forEach(u => {
+            const roles = (u as any).roles?.values ?? (u as any).roles ?? [];
+            initial[u.id] = Array.isArray(roles) ? roles : [];
+        });
+        setEditedRoles(initial);
+    }, [users]);
 
     const handleDelete = async (id: string) => {
         await execute(async () => {
             await deleteUser(id);
             return []
-        });
+        }, 'Пользователь удалён');
         await execute(() => getUsers());
     };
 
-    const handleChangeRole = async (id: string, newRole: string) => {
+    const handleSaveRoles = async (id: string) => {
+        const newRoles = editedRoles[id] || [];
         await execute(async () => {
-            await changeRole({userId: id, newRole});
+            await changeRole({userId: id, newRoles});
             return []
-        });
-        execute(() => getUsers());
+        }, 'Роли обновлены');
+        await execute(() => getUsers());
     };
 
-    if (!hasRole('Admin')) {
+    const handleChangeRoles = (id: string, value: string[]) => {
+        setEditedRoles(prev => ({...prev, [id]: value}));
+    };
+
+    if (!hasRole(ROLES.Admin)) {
         return <Typography>Доступ запрещён</Typography>;
     }
 
@@ -69,14 +92,25 @@ const UserList: React.FC = () => {
                             <TableCell>{user.id}</TableCell>
                             <TableCell>{user.fullName}</TableCell>
                             <TableCell>{user.email}</TableCell>
-                            <TableCell>{user.roles?.values?.join(', ')}</TableCell>
                             <TableCell>
-                                <Button
-                                    onClick={() => handleChangeRole(user.id, user.roles?.values?.includes('Admin') ? 'Manager' : 'Admin')}
-                                >
-                                    Изменить роль
-                                </Button>
-                                <Button color="error" onClick={() => handleDelete(user.id)}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel>Роли</InputLabel>
+                                    <Select
+                                        multiple
+                                        value={editedRoles[user.id] || []}
+                                        label="Роли"
+                                        onChange={(e) => handleChangeRoles(user.id, e.target.value as string[])}
+                                        renderValue={(selected) => (selected as string[]).join(', ')}
+                                    >
+                                        {allRoles.map(r => (
+                                            <MenuItem key={r} value={r}>{r}</MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </TableCell>
+                            <TableCell>
+                                <Button variant="contained" size="small" sx={{mr: 1}} onClick={() => handleSaveRoles(user.id)}>Сохранить</Button>
+                                <Button color="error" size="small" onClick={() => handleDelete(user.id)}>
                                     Удалить
                                 </Button>
                             </TableCell>

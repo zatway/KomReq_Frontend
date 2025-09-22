@@ -30,7 +30,7 @@ const UploadFile: React.FC = () => {
         formData.append('Description', form.description);
         formData.append('IsConfidential', form.isConfidential.toString());
         try {
-            await execute(() => uploadFile(Number(id), formData));
+            await execute(() => uploadFile(Number(id), formData), 'Файл загружен');
             navigate(`/requests/${id}`);
         } catch (err) {
             console.error(err)
