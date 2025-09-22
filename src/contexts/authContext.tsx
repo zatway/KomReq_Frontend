@@ -18,12 +18,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({children}) => {
         const token = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
         if (token && storedUser) {
-            setUser(JSON.parse(storedUser));
+            const raw = JSON.parse(storedUser);
+            const normalized = {
+                ...raw,
+                roles: {
+                    values: raw?.roles?.values ?? raw?.roles?.$values ?? raw?.roles ?? (raw as any)?.Roles ?? []
+                }
+            } as UserDto;
+            setUser(normalized);
         }
         const handleStorage = (event: StorageEvent) => {
             if (event.key === 'token' || event.key === 'user') {
                 const nextUser = localStorage.getItem('user');
-                setUser(nextUser ? JSON.parse(nextUser) : null);
+                if (!nextUser) {
+                    setUser(null);
+                    return;
+                }
+                const raw = JSON.parse(nextUser);
+                const normalized = {
+                    ...raw,
+                    roles: {
+                        values: raw?.roles?.values ?? raw?.roles?.$values ?? raw?.roles ?? (raw as any)?.Roles ?? []
+                    }
+                } as UserDto;
+                setUser(normalized);
             }
         };
         window.addEventListener('storage', handleStorage);
@@ -33,7 +51,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({children}) => {
     const isAuthenticated = !!localStorage.getItem('token');
 
     const hasRole = (role: string) => {
-        return user?.roles?.values?.includes(role) || false;
+        console.log(user);
+        console.log(user?.roles)
+        const roles = user?.roles ?? [];
+        return roles?.includes(role);
     };
 
     const logout = () => {

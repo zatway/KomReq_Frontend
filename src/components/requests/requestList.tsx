@@ -31,7 +31,8 @@ const RequestList: React.FC = () => {
 
     useEffect(() => {
         execute(() => getRequests(filter));
-    }, [filter, execute]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filter]);
 
     const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFilter({...filter, [e.target.name as string]: e.target.value});
@@ -58,7 +59,7 @@ const RequestList: React.FC = () => {
                         <MenuItem value="Low">Низкий</MenuItem>
                         <MenuItem value="Medium">Средний</MenuItem>
                         <MenuItem value="High">Высокий</MenuItem>
-                        <MenuItem value="Critical">Критический</MenuItem>
+                        <MenuItem value="Urgent">Срочный</MenuItem>
                     </Select>
                 </FormControl>
                 <TextField

@@ -114,7 +114,7 @@ const RequestForm: React.FC = () => {
                         <MenuItem value="Low">Низкий</MenuItem>
                         <MenuItem value="Medium">Средний</MenuItem>
                         <MenuItem value="High">Высокий</MenuItem>
-                        <MenuItem value="Critical">Критический</MenuItem>
+                        <MenuItem value="Urgent">Срочный</MenuItem>
                     </Select>
                 </FormControl>
                 <TextField

@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Table,
     TableBody,
@@ -29,19 +29,24 @@ const UserList: React.FC = () => {
 
     const [editedRoles, setEditedRoles] = useState<Record<string, string[]>>({});
 
+    const isAdmin = hasRole(ROLES.Admin);
     useEffect(() => {
-        if (hasRole(ROLES.Admin)) {
+        if (isAdmin) {
             execute(() => getUsers());
         }
-    }, [execute, hasRole]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAdmin]);
 
     useEffect(() => {
         const initial: Record<string, string[]> = {};
-        (users || []).forEach(u => {
-            const roles = (u as any).roles?.values ?? (u as any).roles ?? [];
-            initial[u.id] = Array.isArray(roles) ? roles : [];
-        });
-        setEditedRoles(initial);
+        if(users !== null && users !== undefined) {
+            console.log(users);
+            users?.forEach(u => {
+                const roles = u.roles?.values ?? u.roles ?? [];
+                initial[u.id] = Array.isArray(roles) ? roles : [];
+            });
+            setEditedRoles(initial);
+        }
     }, [users]);
 
     const handleDelete = async (id: string) => {
@@ -65,7 +70,7 @@ const UserList: React.FC = () => {
         setEditedRoles(prev => ({...prev, [id]: value}));
     };
 
-    if (!hasRole(ROLES.Admin)) {
+    if (!isAdmin) {
         return <Typography>Доступ запрещён</Typography>;
     }
 
@@ -87,7 +92,7 @@ const UserList: React.FC = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {users?.map((user) => (
+                    {Array.isArray(users) && users.map((user) => (
                         <TableRow key={user.id}>
                             <TableCell>{user.id}</TableCell>
                             <TableCell>{user.fullName}</TableCell>

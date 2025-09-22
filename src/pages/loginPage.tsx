@@ -22,7 +22,7 @@ const LoginPage: React.FC = () => {
             const response: AuthResponse = await execute(() => login(form));
             setUser(response.user);
             localStorage.setItem('user', JSON.stringify(response.user));
-            navigate(response.user.roles?.values?.includes('Admin') ? '/admin' : '/');
+            navigate(response.user.roles?.includes('Admin') ? '/admin' : '/');
         } catch (err) {
             console.error(err)
         }
