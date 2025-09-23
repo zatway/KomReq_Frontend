@@ -61,20 +61,20 @@ const NotificationsViewer: React.FC = () => {
             {error && <Alert severity="error">{error}</Alert>}
 
             <TableContainer component={Paper}>
-                <Table>
+                <Table size="small">
                     <TableHead>
-                        <TableRow>
-                            <TableCell>ID</TableCell>
-                            <TableCell>Заявка ID</TableCell>
-                            <TableCell>Сообщение</TableCell>
-                            <TableCell>Дата отправки</TableCell>
-                            <TableCell>Прочитано</TableCell>
-                            <TableCell align="right">Действия</TableCell>
+                        <TableRow sx={{ backgroundColor: (theme) => theme.palette.action.hover }}>
+                            <TableCell sx={{ fontWeight: 600 }}>ID</TableCell>
+                            <TableCell sx={{ fontWeight: 600 }}>Заявка ID</TableCell>
+                            <TableCell sx={{ fontWeight: 600 }}>Сообщение</TableCell>
+                            <TableCell sx={{ fontWeight: 600 }}>Дата отправки</TableCell>
+                            <TableCell sx={{ fontWeight: 600 }}>Прочитано</TableCell>
+                            <TableCell sx={{ fontWeight: 600 }} align="right">Действия</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {notifications.map((notification) => (
-                            <TableRow key={notification.id} sx={{ backgroundColor: notification.isRead ? '#f5f5f5' : '#e3f2fd' }}>
+                            <TableRow key={notification.id} hover>
                                 <TableCell>{notification.id}</TableCell>
                                 <TableCell>{notification.requestId}</TableCell>
                                 <TableCell>{notification.message}</TableCell>

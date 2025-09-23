@@ -19,7 +19,16 @@ export interface StatusStatisticFilter {
 }
 
 export const getStatusStatistics = async (filter?: StatusStatisticFilter): Promise<StatusStatisticDto[]> => {
-    const response = await api.get<StatusStatisticDto[]>(`/status`, { params: filter });
-    return response.data;
+    const response = await api.get(`/status`, { params: filter });
+    const raw = response.data as any[];
+    // Normalize PascalCase (backend) -> camelCase (frontend)
+    return (raw ?? []).map((x) => ({
+        id: x.id ?? x.Id,
+        statusId: x.statusId ?? x.StatusId,
+        statusName: x.statusName ?? x.StatusName,
+        date: x.date ?? x.Date,
+        countRequests: x.countRequests ?? x.CountRequests,
+        avgCompletionDays: x.avgCompletionDays ?? x.AvgCompletionDays ?? null,
+    })) as StatusStatisticDto[];
 };
 
