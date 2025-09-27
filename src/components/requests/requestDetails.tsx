@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Typography, Box, Paper, Table, TableBody, TableCell, TableRow, Button, TextField } from '@mui/material';
+import { Typography, Box, Paper, Table, TableBody, TableCell, TableRow, Button, TextField, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
 import { getRequest, addComment } from '../../api';
+import { getRequestStatuses, changeStatus } from '../../api/requests';
+import type { RequestStatusDto } from '../../api/requests';
 import { useApi } from '../../hooks/useApi';
 import type { RequestDto } from '../../api/types/interfaces/requestDto';
 import type { AddCommentDto } from '../../api/requests';
@@ -16,6 +18,9 @@ const RequestDetails: React.FC = ({}) => {
     const navigate = useNavigate();
 
     const [commentText, setCommentText] = useState<string>('');
+    const [statuses, setStatuses] = useState<RequestStatusDto[]>([]);
+    const { execute: execStatuses } = useApi<RequestStatusDto[]>();
+    const { execute: execChangeStatus, loading: statusLoading } = useApi<{ message: string }>();
 
     const fetchRequestDetails = () => {
         if (id) {
@@ -26,6 +31,20 @@ const RequestDetails: React.FC = ({}) => {
     useEffect(() => {
         fetchRequestDetails();
     }, [id]);
+
+    useEffect(() => {
+        const loadStatuses = async () => {
+            const res = await execStatuses(() => getRequestStatuses());
+            if (res) setStatuses(res);
+        };
+        loadStatuses();
+    }, []);
+
+    const handleChangeStatus = async (newStatusId: number) => {
+        if (!id) return;
+        await execChangeStatus(() => changeStatus(Number(id), { newStatusId }), 'Статус обновлён');
+        fetchRequestDetails();
+    };
 
     const handleAddComment = async () => {
         if (!commentText.trim() || !id) return;
@@ -73,7 +92,26 @@ const RequestDetails: React.FC = ({}) => {
                         </TableRow>
                         <TableRow>
                             <TableCell>Статус</TableCell>
-                            <TableCell>{request.currentStatus?.name ?? request.currentStatusId}</TableCell>
+                            <TableCell>
+                                {(hasRole(ROLES.Manager) || hasRole(ROLES.Technician)) ? (
+                                    <FormControl size="small" sx={{ minWidth: 200 }}>
+                                        <InputLabel id="status-select-label">Статус</InputLabel>
+                                        <Select
+                                            labelId="status-select-label"
+                                            label="Статус"
+                                            value={request.currentStatusId ?? statuses.find(s => s.name === request.currentStatus?.name)?.id ?? ''}
+                                            onChange={(e) => handleChangeStatus(Number(e.target.value))}
+                                            disabled={statusLoading}
+                                        >
+                                            {statuses.map(s => (
+                                                <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                ) : (
+                                    <>{request.currentStatus?.name ?? request.currentStatusId}</>
+                                )}
+                            </TableCell>
                         </TableRow>
                         <TableRow>
                             <TableCell>Дата создания</TableCell>

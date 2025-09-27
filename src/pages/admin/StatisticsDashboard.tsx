@@ -76,13 +76,22 @@ const StatisticsDashboard: React.FC = () => {
                     <Paper sx={{ p: 2 }}>
                         <Typography variant="h6" gutterBottom>Заявки по статусам</Typography>
                         <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={aggregatedStatusData}>
+                            <BarChart
+                                data={aggregatedStatusData}
+                                barCategoryGap="30%"
+                                barGap={4}
+                                margin={{ top: 16, right: 16, bottom: 8, left: 8 }}
+                           >
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="statusName" />
-                                <YAxis />
+                                <XAxis
+                                    dataKey="statusName"
+                                    interval={0}
+                                    tick={{ fontSize: 12 }}
+                                />
+                                <YAxis allowDecimals={false} domain={[0, 'dataMax + 1']} />
                                 <Tooltip />
-                                <Legend /> {/* Reverted to original Legend usage */}
-                                <Bar dataKey="countRequests" fill="#8884d8" name="Количество заявок" />
+                                <Legend />
+                                <Bar dataKey="countRequests" fill="#1976d2" name="Количество заявок" maxBarSize={60} />
                             </BarChart>
                         </ResponsiveContainer>
                     </Paper>
